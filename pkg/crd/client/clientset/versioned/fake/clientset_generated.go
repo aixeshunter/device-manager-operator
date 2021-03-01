@@ -20,8 +20,8 @@ package fake
 
 import (
 	clientset "hikvision.com/cloud/device-manager/pkg/crd/client/clientset/versioned"
-	nodesystemv1alpha1 "hikvision.com/cloud/device-manager/pkg/crd/client/clientset/versioned/typed/nodesystem.k8s.io/v1alpha1"
-	fakenodesystemv1alpha1 "hikvision.com/cloud/device-manager/pkg/crd/client/clientset/versioned/typed/nodesystem.k8s.io/v1alpha1/fake"
+	devicev1alpha1 "hikvision.com/cloud/device-manager/pkg/crd/client/clientset/versioned/typed/device.k8s.io/v1alpha1"
+	fakedevicev1alpha1 "hikvision.com/cloud/device-manager/pkg/crd/client/clientset/versioned/typed/device.k8s.io/v1alpha1/fake"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/watch"
 	"k8s.io/client-go/discovery"
@@ -76,7 +76,7 @@ func (c *Clientset) Tracker() testing.ObjectTracker {
 
 var _ clientset.Interface = &Clientset{}
 
-// NodesystemV1alpha1 retrieves the NodesystemV1alpha1Client
-func (c *Clientset) NodesystemV1alpha1() nodesystemv1alpha1.NodesystemV1alpha1Interface {
-	return &fakenodesystemv1alpha1.FakeNodesystemV1alpha1{Fake: &c.Fake}
+// DeviceV1alpha1 retrieves the DeviceV1alpha1Client
+func (c *Clientset) DeviceV1alpha1() devicev1alpha1.DeviceV1alpha1Interface {
+	return &fakedevicev1alpha1.FakeDeviceV1alpha1{Fake: &c.Fake}
 }
