@@ -34,7 +34,7 @@ type FakeExtendDevices struct {
 	Fake *FakeDeviceV1alpha1
 }
 
-var ExtendDevicesResource = schema.GroupVersionResource{Group: "device.k8s.io", Version: "v1alpha1", Resource: "ExtendDevices"}
+var ExtendDevicesResource = schema.GroupVersionResource{Group: "device.k8s.io", Version: "v1alpha1", Resource: "extenddevices"}
 
 var ExtendDevicesKind = schema.GroupVersionKind{Group: "device.k8s.io", Version: "v1alpha1", Kind: "ExtendDevice"}
 

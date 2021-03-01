@@ -111,7 +111,7 @@ func runCommand(opts *options, chroot string) error {
 
 	go listenToSystemSignal(cancel)
 
-	sp, err := sinks.NewSinkProvider(opts.KubeConfigFile, opts.MaxRetry, opts.RetryPeriod, opts.NodeName)
+	sp, err := sinks.NewSinkProvider(opts.KubeConfigFile, opts.MaxRetry, opts.RetryPeriod, opts.NodeName, chroot)
 	if err != nil {
 		klog.Errorf("Failed to initialize sink provider, reason: %v", err)
 		return err

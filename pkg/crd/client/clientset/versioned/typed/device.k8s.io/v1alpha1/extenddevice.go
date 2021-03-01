@@ -66,7 +66,7 @@ func newExtendDevices(c *DeviceV1alpha1Client) *ExtendDevices {
 func (c *ExtendDevices) Get(ctx context.Context, name string, options v1.GetOptions) (result *v1alpha1.ExtendDevice, err error) {
 	result = &v1alpha1.ExtendDevice{}
 	err = c.client.Get().
-		Resource("ExtendDevices").
+		Resource("extenddevices").
 		Name(name).
 		VersionedParams(&options, scheme.ParameterCodec).
 		Do(ctx).
@@ -82,7 +82,7 @@ func (c *ExtendDevices) List(ctx context.Context, opts v1.ListOptions) (result *
 	}
 	result = &v1alpha1.ExtendDeviceList{}
 	err = c.client.Get().
-		Resource("ExtendDevices").
+		Resource("extenddevices").
 		VersionedParams(&opts, scheme.ParameterCodec).
 		Timeout(timeout).
 		Do(ctx).
@@ -98,7 +98,7 @@ func (c *ExtendDevices) Watch(ctx context.Context, opts v1.ListOptions) (watch.I
 	}
 	opts.Watch = true
 	return c.client.Get().
-		Resource("ExtendDevices").
+		Resource("extenddevices").
 		VersionedParams(&opts, scheme.ParameterCodec).
 		Timeout(timeout).
 		Watch(ctx)
@@ -108,7 +108,7 @@ func (c *ExtendDevices) Watch(ctx context.Context, opts v1.ListOptions) (watch.I
 func (c *ExtendDevices) Create(ctx context.Context, ExtendDevice *v1alpha1.ExtendDevice) (result *v1alpha1.ExtendDevice, err error) {
 	result = &v1alpha1.ExtendDevice{}
 	err = c.client.Post().
-		Resource("ExtendDevices").
+		Resource("extenddevices").
 		Body(ExtendDevice).
 		Do(ctx).
 		Into(result)
@@ -119,7 +119,7 @@ func (c *ExtendDevices) Create(ctx context.Context, ExtendDevice *v1alpha1.Exten
 func (c *ExtendDevices) Update(ctx context.Context, ExtendDevice *v1alpha1.ExtendDevice) (result *v1alpha1.ExtendDevice, err error) {
 	result = &v1alpha1.ExtendDevice{}
 	err = c.client.Put().
-		Resource("ExtendDevices").
+		Resource("extenddevices").
 		Name(ExtendDevice.Name).
 		Body(ExtendDevice).
 		Do(ctx).
@@ -133,7 +133,7 @@ func (c *ExtendDevices) Update(ctx context.Context, ExtendDevice *v1alpha1.Exten
 func (c *ExtendDevices) UpdateStatus(ctx context.Context, ExtendDevice *v1alpha1.ExtendDevice) (result *v1alpha1.ExtendDevice, err error) {
 	result = &v1alpha1.ExtendDevice{}
 	err = c.client.Put().
-		Resource("ExtendDevices").
+		Resource("extenddevices").
 		Name(ExtendDevice.Name).
 		SubResource("status").
 		Body(ExtendDevice).
@@ -145,7 +145,7 @@ func (c *ExtendDevices) UpdateStatus(ctx context.Context, ExtendDevice *v1alpha1
 // Delete takes name of the ExtendDevice and deletes it. Returns an error if one occurs.
 func (c *ExtendDevices) Delete(ctx context.Context, name string, options *v1.DeleteOptions) error {
 	return c.client.Delete().
-		Resource("ExtendDevices").
+		Resource("extenddevices").
 		Name(name).
 		Body(options).
 		Do(ctx).
@@ -159,7 +159,7 @@ func (c *ExtendDevices) DeleteCollection(ctx context.Context, options *v1.Delete
 		timeout = time.Duration(*listOptions.TimeoutSeconds) * time.Second
 	}
 	return c.client.Delete().
-		Resource("ExtendDevices").
+		Resource("extenddevices").
 		VersionedParams(&listOptions, scheme.ParameterCodec).
 		Timeout(timeout).
 		Body(options).
@@ -171,7 +171,7 @@ func (c *ExtendDevices) DeleteCollection(ctx context.Context, options *v1.Delete
 func (c *ExtendDevices) Patch(ctx context.Context, name string, pt types.PatchType, data []byte, subresources ...string) (result *v1alpha1.ExtendDevice, err error) {
 	result = &v1alpha1.ExtendDevice{}
 	err = c.client.Patch(pt).
-		Resource("ExtendDevices").
+		Resource("extenddevices").
 		SubResource(subresources...).
 		Name(name).
 		Body(data).

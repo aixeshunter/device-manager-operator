@@ -4,6 +4,17 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
+const (
+	// Disk mount
+	DiskMount  = "mount"
+	DiskUmount = "umount"
+
+	// Disk mount status
+	MountSuccess = "mountSucceed"
+	MountFailed  = "mountFailed"
+	MountAvail   = "Available"
+)
+
 // +genclient
 // +genclient:nonNamespaced
 // +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
@@ -25,11 +36,8 @@ type ExtendDeviceStatus struct {
 type ExtendDeviceSpec struct {
 	Disks []Disk `json:"disk,omitempty"`
 	// usb is not supported
-	USB    []USB   `json:"usb,omitempty"`
-	Uptime float64 `json:"uptime,omitempty"`
-	// device type
-	// data format is enum: disk, usb etc.
-	Type string `json:"type"`
+	USB []USB `json:"usb,omitempty"`
+
 	// The node name that device exists
 	Node string `json:"node"`
 }
@@ -60,6 +68,14 @@ type Disk struct {
 
 	// Whether to format the block device before mount.
 	Formatting bool `json:"formatting,omitempty"`
+
+	// The action to disk, about mount and umount.
+	Action string `json:"action,omitempty"`
+
+	// The status of block storage device
+	Status string `json:"status,omitempty"`
+
+	Dump bool `json:"dump,omitempty"`
 }
 
 // usb is not supported

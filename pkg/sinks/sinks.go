@@ -15,9 +15,10 @@ type SinkProvider struct {
 	maxRetry    int
 	retryPeriod time.Duration
 	nodeName    string
+	chroot      string
 }
 
-func NewSinkProvider(kubeConfig string, maxRetry int, retryPeriod time.Duration, nodeName string) (*SinkProvider, error) {
+func NewSinkProvider(kubeConfig string, maxRetry int, retryPeriod time.Duration, nodeName string, chroot string) (*SinkProvider, error) {
 	client, err := kube.NewClient(kubeConfig)
 	if err != nil {
 		return nil, err
@@ -38,5 +39,6 @@ func NewSinkProvider(kubeConfig string, maxRetry int, retryPeriod time.Duration,
 		maxRetry:    maxRetry,
 		retryPeriod: retryPeriod,
 		nodeName:    nodeName,
+		chroot:      chroot,
 	}, nil
 }
