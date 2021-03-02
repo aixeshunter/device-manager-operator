@@ -2,10 +2,12 @@
 package sinks
 
 import (
+	"context"
 	crdClient "hikvision.com/cloud/device-manager/pkg/crd/client/clientset/versioned"
 	"hikvision.com/cloud/device-manager/pkg/sinks/kube"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/tools/clientcmd"
+	"k8s.io/klog"
 	"time"
 )
 
@@ -41,4 +43,33 @@ func NewSinkProvider(kubeConfig string, maxRetry int, retryPeriod time.Duration,
 		nodeName:    nodeName,
 		chroot:      chroot,
 	}, nil
+}
+
+func (p *SinkProvider) DiskHandler(ctx context.Context) error {
+	klog.V(5).Infof("Handler the disks starting...")
+	var err error
+	retry := 0
+	for retry < p.maxRetry {
+		select {
+		case <-ctx.Done():
+			klog.V(1).Infof("Exit sink handler.")
+			return ctx.Err()
+		default:
+			if err = kube.HandleExtendDevice(ctx, p.client, p.nodeName, p.chroot); err != nil {
+				klog.Warning("Failed to handler the disks.")
+			}
+			retry++
+			if retry != p.maxRetry {
+				time.Sleep(p.retryPeriod)
+			}
+		}
+	}
+
+	if retry == p.maxRetry {
+		klog.Errorf("Failed to handler disks after %d retries.", p.maxRetry)
+		return err
+	}
+	klog.V(2).Infoln("handler devices successfully.")
+
+	return nil
 }

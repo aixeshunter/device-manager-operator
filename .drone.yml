@@ -1,0 +1,80 @@
+---
+kind: pipeline
+name: default
+
+platform:
+  os: linux
+  arch: amd64
+
+clone:
+  disable: true
+
+workspace:
+  base: /go
+  path: src/hikvision.com/device-manager
+
+steps:
+  - name: clone
+    image: af.hikvision.com.cn/docker-drpd/drone/git:1.5.0
+    environment:
+      DRONE_REMOTE_URL: https://sys-gitlab.hikvision.com.cn/idatacloud/product/ccp/docker/device-manager.git
+      PLUGIN_SKIP_VERIFY: true
+      PLUGIN_TAGS: true
+
+  - name: set version as rc          # 在Chart替换版本信息为rc
+    image: af.hikvision.com.cn/docker-drpd/openstack/hole/helm:v2.13.1
+    commands:
+      - versionTag="rc"
+      - echo -n $versionTag > .mainversion
+      - sed -i "s/VERSIONTAG/rc/g" `grep VERSIONTAG -rl chart`
+    when:                            # when控制本模块的执行条件，在触发事件为push的时候，即有代码提交时执行本任务
+      event:
+        - push
+
+  - name: set version as release      # 在Chart替换版本信息为release
+    image: af.hikvision.com.cn/docker-drpd/openstack/hole/helm:v2.13.1
+    commands:
+      - versionTag="release"
+      - echo -n $versionTag > .mainversion
+      - sed -i "s/VERSIONTAG/release/g" `grep VERSIONTAG -rl chart`
+    when:
+      event:
+        - tag                          # 在触发事件为tag的时候，即打标签时执行本任务
+
+  - name: set build time
+    image: af.hikvision.com.cn/docker-drpd/openstack/hole/helm:v2.13.1
+    commands:
+      - buildTime=`date +%Y%m%d%H%M`
+      - echo -n $buildTime > .buildTime  # 注册Drone全局变量buildTime
+      - sed -i "s/BUILDTIME/$buildTime/g" `grep BUILDTIME -rl chart`
+
+  - name: set image tag
+    image: af.hikvision.com.cn/docker-drpd/lbkci/drone-docker:1.0.0
+    commands:
+      - main_version=`cat .mainversion`
+      - build_time=`cat .buildTime`    # 使用上一任务中注册的变量buildTime
+      - sed -i "s/BUILDTIME/$build_time/g" `grep BUILDTIME -rl release.sh`
+      - sed -i "s/VERSIONTAG/$main_version/g" `grep VERSIONTAG -rl release.sh`
+
+  - name: build and push image
+    image: af.hikvision.com.cn/docker-drpd/lbkci/drone-docker:1.0.0
+    settings:
+      insecure: true                      # 配置容器中的daemon
+      registry: af.hikvision.com.cn       # 配置容器中的daemon
+      debug: true
+      force_tag: true
+      password:
+        from_secret: docker_password      # Drone界面上配置的docker_password
+      username:
+        from_secret: docker_username      # Drone界面上配置的docker_username
+      script:
+        - chmod +x release.sh
+        - ./release.sh
+    privileged: true                      # 设置容器是否拥有扩展权限
+
+  - name: package and push chart
+    image: af.hikvision.com.cn/docker-drpd/openstack/hole/helm:v2.13.1
+    commands:
+      - cd chart
+      - chart_file=`helm package device-manager |cut -f 2 -d ':'`
+      - curl -udrpd:helloworld -T $chart_file "http://af.hikvision.com.cn/artifactory/helm-drpd/k8ss/"

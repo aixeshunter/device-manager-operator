@@ -5,14 +5,16 @@ import (
 )
 
 const (
-	// Disk mount
+	// Disk action
 	DiskMount  = "mount"
 	DiskUmount = "umount"
+	DiskClean  = "clean"
 
 	// Disk mount status
 	MountSuccess = "mountSucceed"
 	MountFailed  = "mountFailed"
 	MountAvail   = "Available"
+	Pending      = "Pending"
 )
 
 // +genclient
@@ -76,6 +78,9 @@ type Disk struct {
 	Status string `json:"status,omitempty"`
 
 	Dump bool `json:"dump,omitempty"`
+
+	// The error message of action
+	Error string `json:"error,omitempty"`
 }
 
 // usb is not supported

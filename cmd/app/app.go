@@ -81,20 +81,15 @@ func NewDeviceManagerCommand() *cobra.Command {
 }
 
 // run executes the logic. It only returns on error or context is done.
-func run(ctx context.Context, chroot string, period time.Duration, provider *sinks.SinkProvider) error {
+func run(ctx context.Context, period time.Duration, provider *sinks.SinkProvider) error {
 
 	wait.UntilWithContext(ctx, func(ctx context.Context) {
 		klog.Infoln("The work queue starting...")
-		//data, err := discovery.Collect(chroot)
-		//if err != nil {
-		//	klog.Errorf("Failed to collect hardware information, reason: %v", err)
-		//	return
-		//}
-		//
-		//if err := provider.Store(ctx, data); err != nil {
-		//	klog.Errorf("Failed to store hardware information, reason: %v", err)
-		//	return
-		//}
+		// handler the disks
+		if err := provider.DiskHandler(ctx); err != nil {
+			klog.Errorf("Failed to handler the block devices, reason: %v", err)
+			return
+		}
 
 		klog.Infoln("The work queue done. Waiting the next queue.")
 	}, period)
@@ -117,7 +112,7 @@ func runCommand(opts *options, chroot string) error {
 		return err
 	}
 
-	return run(ctx, chroot, opts.Period, sp)
+	return run(ctx, opts.Period, sp)
 }
 
 // listenToSystemSignal listen system signal and exit.

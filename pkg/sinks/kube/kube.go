@@ -93,22 +93,36 @@ func HandleDisks(ctx context.Context, client crdClient.Interface, ed *nsv1alpha1
 	}
 
 	disks := ed.Spec.Disks
-	for _, d := range disks {
+	for i, d := range disks {
 		switch d.Action {
 		case nsv1alpha1.DiskMount:
-			if err := diskclient.MountDisks(lsblk, d, chroot); err != nil {
-				return err
-			} else {
-				// ???
-				d.Status = nsv1alpha1.DiskMount
+			if d.Status == nsv1alpha1.MountAvail {
+				if err := diskclient.MountDisks(lsblk, d, chroot); err != nil {
+					klog.Errorf("disk %s mount failed: %s", d.Name, err)
+				} else {
+					disks[i].Status = nsv1alpha1.MountSuccess
+				}
+
+				if d.Clean == true {
+					if err := diskclient.CleanDisk(lsblk, d, chroot); err != nil {
+						klog.Errorf("disk %s clean failed: %s", d.Name, err)
+					}
+					disks[i].Clean = false
+				}
 			}
 		case nsv1alpha1.DiskUmount:
-			klog.Warning("The umount feature is not support.")
+			if d.Status == nsv1alpha1.MountSuccess {
+				if err := diskclient.UmountDisks(lsblk, d, chroot); err != nil {
+					klog.Errorf("disk %s umount failed: %s", d.Name, err)
+				}
+			}
 		default:
-			klog.Errorf("The action %s is not valid of disk %s.", d.Action, d.Name)
+			klog.Errorf("the action %s is not support of disk %s.", d.Action, d.Name)
 		}
 	}
 
+	ed.Spec.Disks = disks
+	ed.Status.LastUpdateTime = metav1.Now()
 	_, err = UpdateExtendDevice(ctx, client, ed)
 	if err != nil {
 		return err
