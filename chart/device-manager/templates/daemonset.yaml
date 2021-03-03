@@ -48,6 +48,10 @@ spec:
             - name: rootfs
               mountPath: {{ .Values.chroot }}
               # ssh volume
+            - name: ssh
+              mountPath: /root/.ssh
+            - name: sshclient
+              mountPath: /etc/ssh/ssh_config
       terminationGracePeriodSeconds: 30
       serviceAccountName: device-manager-sa
       hostNetwork: true
@@ -59,3 +63,9 @@ spec:
         - name: rootfs
           hostPath:
             path: /
+        - name: ssh
+          hostPath:
+            path: /root/.ssh
+        - name: sshclient
+          hostPath:
+            path: /etc/ssh/ssh_config

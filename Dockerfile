@@ -10,7 +10,7 @@ COPY Makefile Makefile
 # Build
 RUN make build
 
-FROM af.hikvision.com.cn/docker-drpd/library/alpine:10.4-tool
+FROM af.hikvision.com.cn/docker-drpd/library/alpine:10.4-device
 
 WORKDIR /
 COPY --from=builder /go/src/hikvision.com/cloud/device-manager/bin/device-manager .
