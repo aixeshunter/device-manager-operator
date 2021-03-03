@@ -1,5 +1,7 @@
 # Device-Manager
 
+[![Build Status](http://10.33.46.222:8000/api/badges/docker/device-manager/status.svg)](http://10.33.46.222:8000/docker/device-manager)
+
 ## Usage
 
 * 负责监听CRD并对宿主机设备进行操作，目前主要包括：
