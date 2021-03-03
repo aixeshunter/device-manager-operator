@@ -1,0 +1,61 @@
+---
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: device-manager
+  namespace: {{ .Release.Namespace }}
+  labels:
+    k8s-app: device-manager
+spec:
+  selector:
+    matchLabels:
+      k8s-app: device-manager
+  template:
+    metadata:
+      labels:
+        k8s-app: device-manager
+      annotations:
+        scheduler.alpha.kubernetes.io/critical-pod: ""
+    spec:
+      tolerations:
+        - key: node-role.kubernetes.io/master
+          effect: NoSchedule
+        - key: "CriticalAddonsOnly"
+          operator: "Exists"
+        - effect: NoSchedule
+          key: node.kubernetes.io/not-ready
+      containers:
+        - name: manager
+          image: {{ .Values.image.name }}:{{ .Values.image.tag }}
+          args:
+            - --chroot={{ .Values.chroot }}
+            - --period={{ .Values.period.seconds }}
+            - --max-retry={{ .Values.period.retry.max }}
+            - --retry-period={{ .Values.period.retry.period }}
+            - --v={{ .Values.log.level }}
+          env:
+            - name: DEVICE_NODE_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: spec.nodeName
+          resources:
+  {{ toYaml .Values.resources | indent 12 }}
+          securityContext:
+            privileged: {{ .Values.securityContext.privileged }}
+          volumeMounts:
+            - name: usr-share
+              mountPath: /usr/share
+            - name: rootfs
+              mountPath: {{ .Values.chroot }}
+              # ssh volume
+      terminationGracePeriodSeconds: 30
+      serviceAccountName: device-manager-sa
+      hostNetwork: true
+      hostPID: true
+      volumes:
+        - name: usr-share
+          hostPath:
+            path: /usr/share
+        - name: rootfs
+          hostPath:
+            path: /

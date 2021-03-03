@@ -3,11 +3,13 @@ package kube
 import (
 	"context"
 	"fmt"
+	"hikvision.com/cloud/device-manager/pkg/constants"
 	nsv1alpha1 "hikvision.com/cloud/device-manager/pkg/crd/apis/device.k8s.io/v1alpha1"
 	crdClient "hikvision.com/cloud/device-manager/pkg/crd/client/clientset/versioned"
 	diskclient "hikvision.com/cloud/device-manager/pkg/devices/disks"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/klog"
+	"time"
 
 	"k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/client-go/rest"
@@ -94,11 +96,18 @@ func HandleDisks(ctx context.Context, client crdClient.Interface, ed *nsv1alpha1
 	}
 
 	disks := ed.Spec.Disks
+	change := false
 	for i, d := range disks {
 		if d.Status == nsv1alpha1.MountAvail || d.Status == "" {
 			disks[i].Status = nsv1alpha1.Pending
+			change = true
 		}
 	}
+	if change == true {
+		t := time.Now()
+		ed.Status.Message = fmt.Sprintf("%s: There are some available disks should be handled.", t.Format(constants.TimeLayout))
+	}
+
 	err = updateDiskStatus(ctx, client, ed, disks)
 	if err != nil {
 		klog.Error("Update disk status failed when starting.")
@@ -164,12 +173,6 @@ func HandleDisks(ctx context.Context, client crdClient.Interface, ed *nsv1alpha1
 		}
 	}
 
-	//ed.Spec.Disks = disks
-	//ed.Status.LastUpdateTime = metav1.Now()
-	//_, err = UpdateExtendDevice(ctx, client, ed)
-	//if err != nil {
-	//	return err
-	//}
 	return nil
 }
 
@@ -181,7 +184,6 @@ func updateDiskStatus(ctx context.Context, client crdClient.Interface, ed *nsv1a
 		klog.Errorf("update disk %s status with k8s client failed.", disks)
 		return err
 	}
-
 	return nil
 }
 

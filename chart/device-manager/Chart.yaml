@@ -1,0 +1,10 @@
+apiVersion: v1
+appVersion: 3.7.0
+description: Helm chart for device-manager components
+keywords:
+- kubernetes
+- device-manager
+name: device-manager
+sources:
+- https://sys-gitlab.hikvision.com.cn/idatacloud/product/ccp/docker/device-manager
+version: 3.7.0-VERSIONTAG.BUILDTIME

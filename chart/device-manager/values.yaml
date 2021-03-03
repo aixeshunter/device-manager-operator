@@ -1,0 +1,24 @@
+resources:
+  limits:
+    memory: 1024Mi
+  requests:
+    memory: 500Mi
+
+# image
+image:
+  name: docker.hikcloud:30001/k8ss/device-manager
+  tag: v0.1-VERSIONTAG.BUILDTIME
+
+period:
+  seconds: 15s
+  retry:
+    period: 10s
+    max: 1
+
+log:
+  level: 5
+
+securityContext:
+  privileged: true
+
+chroot: "/host"
