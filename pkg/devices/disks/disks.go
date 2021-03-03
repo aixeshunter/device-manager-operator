@@ -13,12 +13,10 @@ import (
 	"strings"
 )
 
-func MountDisks(lsblk map[string]BlockDevice, disk nsv1alpha1.Disk, chroot string) error {
-	d, ok := lsblk[disk.Name]
-	if ok == true && d.InUse == true {
+func MountDisks(d BlockDevice, disk nsv1alpha1.Disk, chroot string) error {
+	if d.InUse == true {
 		if d.MountPoint != disk.MountPoint {
 			klog.Errorf("mount: the disk %s was mounted on %s, but expect to %s.", disk.Name, d.MountPoint, disk.MountPoint)
-			// TODO
 		} else {
 			klog.V(5).Infof("mount: the disk %s was mounted on %s already.", disk.Name, disk.MountPoint)
 
@@ -57,13 +55,17 @@ func MountDisks(lsblk map[string]BlockDevice, disk nsv1alpha1.Disk, chroot strin
 	return nil
 }
 
-func UmountDisks(lsblk map[string]BlockDevice, disk nsv1alpha1.Disk, chroot string) error {
-	d, ok := lsblk[disk.Name]
-	if ok == true && d.InUse == true {
+func UmountDisks(d BlockDevice, disk nsv1alpha1.Disk, chroot string) error {
+	if d.InUse == true {
+		if d.MountPoint == "/" || disk.MountPoint == "/" {
+			return fmt.Errorf("the mount point / can not umount")
+		}
+
 		if d.MountPoint != disk.MountPoint {
 			klog.Errorf("umount: the disk %s was mounted on %s, but expect to %s.", disk.Name, d.MountPoint, disk.MountPoint)
+			return fmt.Errorf("the disk %s was mounted on %s, but expect to %s", disk.Name, d.MountPoint, disk.MountPoint)
 		} else {
-			klog.Warningf("umount: the disk %s was mounted on %s already.", disk.Name, disk.MountPoint)
+			klog.Infof("umount: the disk %s was mounted on %s already, umount starting...", disk.Name, disk.MountPoint)
 		}
 		// Umount disk from mount point
 		if err := umount(disk); err != nil {

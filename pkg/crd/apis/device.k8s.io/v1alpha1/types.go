@@ -8,13 +8,21 @@ const (
 	// Disk action
 	DiskMount  = "mount"
 	DiskUmount = "umount"
-	DiskClean  = "clean"
+
+	// Clean status
+	CleanSuccess = "cleanSucceed"
+	CleanFailed  = "cleanFailed"
+	Cleaning     = "cleaning"
 
 	// Disk mount status
-	MountSuccess = "mountSucceed"
-	MountFailed  = "mountFailed"
-	MountAvail   = "Available"
-	Pending      = "Pending"
+	MountSuccess  = "mountSucceed"
+	MountFailed   = "mountFailed"
+	UmountSuccess = "umountSucceed"
+	UmountFailed  = "umountFailed"
+	// waiting
+	MountAvail = "Available"
+	// executing
+	Pending = "Pending"
 )
 
 // +genclient
@@ -77,10 +85,13 @@ type Disk struct {
 	// The status of block storage device
 	Status string `json:"status,omitempty"`
 
+	// The clean status of block storage device
+	CleanStatus string `json:"cleanStatus,omitempty"`
+
 	Dump bool `json:"dump,omitempty"`
 
 	// The error message of action
-	Error string `json:"error,omitempty"`
+	Error []string `json:"error,omitempty"`
 }
 
 // usb is not supported

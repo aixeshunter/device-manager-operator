@@ -32,3 +32,8 @@ ssh 127.0.0.1 mount /dev/sdd <mount path>
 2. mount, umount
 3. mkfs.xfs mkfs.ext4
 4. ssh
+
+### koscenter需要开发的接口
+
+1. 磁盘列表（调用node-hardware-discovery接口）
+2. 磁盘挂载（status置为available）、卸载、清理
