@@ -132,6 +132,10 @@ func ListBlockDevices(chroot string) (map[string]BlockDevice, error) {
 			dev.InUse = true
 		}
 
+		if dev.MountPoint != "" {
+			dev.InUse = false
+		}
+
 		// Add additional information from sysfs.
 		//if err := addHardwareInfo(&dev); err != nil {
 		//	klog.Infof(
