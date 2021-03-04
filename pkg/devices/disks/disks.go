@@ -145,6 +145,8 @@ func umount(disk nsv1alpha1.Disk) error {
 	klog.Infof("exec umount of disk %s.", disk.Name)
 	cmd := exec.Command(
 		sshCommand(),
+		"-o",
+		"StrictHostKeyChecking=no",
 		"127.0.0.1",
 		"umount",
 		disk.MountPoint,
@@ -200,6 +202,8 @@ func mount(chroot string, disk nsv1alpha1.Disk) error {
 	klog.Infof("exec mount of disk %s.", disk.Name)
 	cmd := exec.Command(
 		sshCommand(),
+		"-o",
+		"StrictHostKeyChecking=no",
 		"127.0.0.1",
 		"mount",
 		DevicePrefix+disk.Name,
