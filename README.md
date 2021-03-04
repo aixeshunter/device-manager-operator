@@ -55,15 +55,24 @@ metadata:
 spec:
   node: master1
   disk:
-  - name: sdc
-    clean: false
-    fsType: xfs
-    mountPoint: /opt/mnt
-    uuid: e9d83931-56ac-402e-a066-b79f1074de49
-    formatting: true
-    action: mount
-    status: Available
-    dump: false
+    - name: sdc
+      clean: false
+      fsType: xfs
+      mountPoint: /opt/mnt2
+      uuid: e9d83931-56ac-402e-a066-b79f1074de49
+      formatting: true
+      action: mount
+      status: Available
+      dump: false
+    - name: sdb
+      clean: false
+      fsType: ext4
+      mountPoint: /opt/mnt1
+      uuid: 56ac-402e-a066-b79f1074de49
+      formatting: true
+      action: mount
+      status: Available
+      dump: true
 status:
   lastUpdateTime: "2021-03-04T06:57:27Z"
   message: create
