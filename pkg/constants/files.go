@@ -7,6 +7,21 @@ import (
 	"regexp"
 )
 
+func CreateDirectoryIfNotExist(path string) error {
+	_, err := os.Stat(path)
+	if err != nil {
+		if os.IsNotExist(err) {
+			err = os.Mkdir(path, 0777)
+			if err != nil {
+				return err
+			}
+		} else {
+			return err
+		}
+	}
+	return nil
+}
+
 func WriteToFile(filePath string, outPut []byte) error {
 	f, err := os.OpenFile(filePath, os.O_WRONLY|os.O_TRUNC, 0600)
 	if err != nil {

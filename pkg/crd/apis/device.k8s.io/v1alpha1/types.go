@@ -91,7 +91,12 @@ type Disk struct {
 	Dump bool `json:"dump,omitempty"`
 
 	// The error message of action
-	Error []string `json:"error,omitempty"`
+	Error []Error `json:"errors,omitempty"`
+}
+
+type Error struct {
+	Err  string      `json:"error,omitempty"`
+	Time metav1.Time `json:"ErrorTime"`
 }
 
 // usb is not supported

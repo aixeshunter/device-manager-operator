@@ -117,11 +117,15 @@ func HandleDisks(ctx context.Context, client crdClient.Interface, ed *nsv1alpha1
 	}
 
 	for i, d := range disks {
+		time.Sleep(5 * time.Second)
 		bd, ok := lsblk[d.Name]
 		if ok == false {
 			klog.Errorf("disk %s not found in lsblk command, is it exist?", d.Name)
 			disks[i].Status = nsv1alpha1.MountFailed
-			disks[i].Error = append(disks[i].Error, fmt.Sprintf("disk %s not found in lsblk command, is it exist?", d.Name))
+			disks[i].Error = append(disks[i].Error, nsv1alpha1.Error{
+				Err:  fmt.Sprintf("disk %s not found in lsblk command, is it exist?", d.Name),
+				Time: metav1.Now(),
+			})
 			_ = updateDiskStatus(ctx, client, ed, disks)
 			continue
 		}
@@ -134,7 +138,10 @@ func HandleDisks(ctx context.Context, client crdClient.Interface, ed *nsv1alpha1
 				_ = updateDiskStatus(ctx, client, ed, disks)
 				if err := diskclient.CleanDisk(lsblk, d, chroot); err != nil {
 					klog.Errorf("disk %s clean failed: %s", d.Name, err)
-					disks[i].Error = append(disks[i].Error, fmt.Sprintf("disk clean failed: %s.", err))
+					disks[i].Error = append(disks[i].Error, nsv1alpha1.Error{
+						Err:  fmt.Sprintf("disk clean failed: %s.", err),
+						Time: metav1.Now(),
+					})
 					disks[i].CleanStatus = nsv1alpha1.CleanSuccess
 				} else {
 					disks[i].CleanStatus = nsv1alpha1.CleanFailed
@@ -148,7 +155,10 @@ func HandleDisks(ctx context.Context, client crdClient.Interface, ed *nsv1alpha1
 				if err := diskclient.MountDisks(bd, d, chroot); err != nil {
 					klog.Errorf("disk %s mount failed: %s", d.Name, err)
 					disks[i].Status = nsv1alpha1.MountFailed
-					disks[i].Error = append(disks[i].Error, fmt.Sprintf("disk umount failed: %s", err))
+					disks[i].Error = append(disks[i].Error, nsv1alpha1.Error{
+						Err:  fmt.Sprintf("disk umount failed: %s", err),
+						Time: metav1.Now(),
+					})
 				} else {
 					disks[i].Status = nsv1alpha1.MountSuccess
 				}
@@ -162,7 +172,10 @@ func HandleDisks(ctx context.Context, client crdClient.Interface, ed *nsv1alpha1
 				if err := diskclient.UmountDisks(bd, d, chroot); err != nil {
 					klog.Errorf("disk %s umount failed: %s", d.Name, err)
 					disks[i].Status = nsv1alpha1.UmountFailed
-					disks[i].Error = append(disks[i].Error, fmt.Sprintf("%s", err))
+					disks[i].Error = append(disks[i].Error, nsv1alpha1.Error{
+						Err:  fmt.Sprintf("%s", err),
+						Time: metav1.Now(),
+					})
 				} else {
 					disks[i].Status = nsv1alpha1.UmountSuccess
 				}
@@ -170,7 +183,10 @@ func HandleDisks(ctx context.Context, client crdClient.Interface, ed *nsv1alpha1
 			}
 		default:
 			klog.Errorf("the action %s is not support of disk %s.", d.Action, d.Name)
-			disks[i].Error = append(disks[i].Error, fmt.Sprintf("the action %s is not support of disk %s.", d.Action, d.Name))
+			disks[i].Error = append(disks[i].Error, nsv1alpha1.Error{
+				Err:  fmt.Sprintf("the action %s is not support of disk %s.", d.Action, d.Name),
+				Time: metav1.Now(),
+			})
 			_ = updateDiskStatus(ctx, client, ed, disks)
 		}
 	}

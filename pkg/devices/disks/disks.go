@@ -147,7 +147,7 @@ func umount(disk nsv1alpha1.Disk) error {
 		sshCommand(),
 		"127.0.0.1",
 		"umount",
-		DevicePrefix+disk.Name,
+		disk.MountPoint,
 	)
 	err := cmd.Run()
 	if err != nil {
@@ -191,17 +191,23 @@ func deleteFromFStab(chroot string, disk nsv1alpha1.Disk, blk BlockDevice) error
 }
 
 func mount(chroot string, disk nsv1alpha1.Disk) error {
+	err := constants.CreateDirectoryIfNotExist(chroot + disk.MountPoint)
+	if err != nil {
+		klog.Errorf("create directory %s failed: %s", disk.MountPoint, err)
+		return err
+	}
+
 	klog.Infof("exec mount of disk %s.", disk.Name)
 	cmd := exec.Command(
 		sshCommand(),
 		"127.0.0.1",
 		"mount",
 		DevicePrefix+disk.Name,
-		chroot+disk.MountPoint,
+		disk.MountPoint,
 	)
-	err := cmd.Run()
+	err = cmd.Run()
 	if err != nil {
-		klog.Errorf("the disk %s mounted on %s failed.", disk.Name, disk.MountPoint)
+		klog.Errorf("the disk %s mounted on %s failed: err", disk.Name, disk.MountPoint, err)
 		return err
 	}
 	return nil
