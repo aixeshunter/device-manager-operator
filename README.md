@@ -39,3 +39,46 @@ ssh 127.0.0.1 mount /dev/sdd <mount path>
 
 1. 磁盘列表（调用node-hardware-discovery接口）
 2. 磁盘挂载（status置为available）、卸载、清理
+
+### extenddevice示例
+
+```yaml
+apiVersion: device.k8s.io/v1alpha1
+kind: ExtendDevice
+metadata:
+  creationTimestamp: "2021-03-04T03:35:43Z"
+  generation: 802
+  name: master1
+  resourceVersion: "61443566"
+  selfLink: /apis/device.k8s.io/v1alpha1/extenddevices/master1
+  uid: 8c42ad96-4761-441d-b07a-0ec9987abae2
+spec:
+  node: master1
+  disk:
+  - name: sdd
+    clean: false
+    fsType: xfs
+    mountPoint: /opt/mnt
+    uuid: 8b98ae90-a6d7-4614-80c8-d120c134290f
+    formatting: true
+    action: mount
+    status: Available
+    dump: false
+status:
+  lastUpdateTime: "2021-03-04T06:57:27Z"
+  message: create
+```
+
+## Installation
+
+### deploy with helm
+
+```bash
+helm install device-manager device-manager/ -n kube-system
+```
+
+### uninstall
+
+```bash
+helm delete device-manager  -n kube-system
+```

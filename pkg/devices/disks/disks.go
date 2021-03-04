@@ -144,7 +144,9 @@ func makeFileSystem(disk nsv1alpha1.Disk) error {
 func umount(disk nsv1alpha1.Disk) error {
 	klog.Infof("exec umount of disk %s.", disk.Name)
 	cmd := exec.Command(
-		sshCommand("umount"),
+		sshCommand(),
+		"127.0.0.1",
+		"umount",
 		DevicePrefix+disk.Name,
 	)
 	err := cmd.Run()
@@ -191,7 +193,9 @@ func deleteFromFStab(chroot string, disk nsv1alpha1.Disk, blk BlockDevice) error
 func mount(chroot string, disk nsv1alpha1.Disk) error {
 	klog.Infof("exec mount of disk %s.", disk.Name)
 	cmd := exec.Command(
-		sshCommand("mount"),
+		sshCommand(),
+		"127.0.0.1",
+		"mount",
 		DevicePrefix+disk.Name,
 		chroot+disk.MountPoint,
 	)
@@ -243,6 +247,6 @@ func writeToFStab(chroot string, disk nsv1alpha1.Disk) error {
 	return nil
 }
 
-func sshCommand(cmd string) string {
-	return "ssh 127.0.0.1 " + cmd
+func sshCommand() string {
+	return "ssh"
 }

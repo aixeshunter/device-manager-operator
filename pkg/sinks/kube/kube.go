@@ -183,7 +183,7 @@ func updateDiskStatus(ctx context.Context, client crdClient.Interface, ed *nsv1a
 	ed.Status.LastUpdateTime = metav1.Now()
 	_, err := UpdateExtendDevice(ctx, client, ed)
 	if err != nil {
-		klog.Errorf("update disk %s status with k8s client failed.", disks)
+		klog.Errorf("update disk %v status with k8s client failed: %s.", disks, err)
 		return err
 	}
 	return nil
