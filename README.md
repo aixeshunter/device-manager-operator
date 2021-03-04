@@ -55,11 +55,11 @@ metadata:
 spec:
   node: master1
   disk:
-  - name: sdd
+  - name: sdc
     clean: false
     fsType: xfs
     mountPoint: /opt/mnt
-    uuid: 8b98ae90-a6d7-4614-80c8-d120c134290f
+    uuid: e9d83931-56ac-402e-a066-b79f1074de49
     formatting: true
     action: mount
     status: Available

@@ -43,7 +43,7 @@ func ListBlockDevices(chroot string) (map[string]BlockDevice, error) {
 		"MAJ:MIN",    // major/minor device numbers
 	}
 
-	klog.Infoln("executing lsblk")
+	//klog.Infoln("executing lsblk")
 	output, err := exec.Command(
 		"lsblk",
 		"-b", // output size in bytes

@@ -231,6 +231,7 @@ func writeToFStab(chroot string, disk nsv1alpha1.Disk) error {
 	}
 	line = append(line, dump)
 	line = append(line, "0")
+	line = append(line, "\n")
 
 	file, err := os.OpenFile(chroot+FStabPath, os.O_WRONLY|os.O_APPEND, 0666)
 	if err != nil {

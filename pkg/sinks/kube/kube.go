@@ -127,7 +127,7 @@ func HandleDisks(ctx context.Context, client crdClient.Interface, ed *nsv1alpha1
 				Err:  fmt.Sprintf("disk %s not found in lsblk command, is it exist?", d.Name),
 				Time: metav1.Now(),
 			})
-			_ = updateDiskStatus(ctx, client, name, disks)
+			_ = patchDisk(ctx, client, name, *ed, disks)
 			continue
 		}
 
@@ -136,7 +136,7 @@ func HandleDisks(ctx context.Context, client crdClient.Interface, ed *nsv1alpha1
 			// clean disk data
 			if d.Status == nsv1alpha1.MountSuccess && d.Clean == true {
 				disks[i].CleanStatus = nsv1alpha1.Cleaning
-				_ = updateDiskStatus(ctx, client, name, disks)
+				_ = patchDisk(ctx, client, name, *ed, disks)
 				if err := diskclient.CleanDisk(lsblk, d, chroot); err != nil {
 					klog.Errorf("disk %s clean failed: %s", d.Name, err)
 					disks[i].Error = append(disks[i].Error, nsv1alpha1.Error{
@@ -148,7 +148,7 @@ func HandleDisks(ctx context.Context, client crdClient.Interface, ed *nsv1alpha1
 					disks[i].CleanStatus = nsv1alpha1.CleanFailed
 				}
 				disks[i].Clean = false
-				_ = updateDiskStatus(ctx, client, name, disks)
+				_ = patchDisk(ctx, client, name, *ed, disks)
 			}
 
 			// mount disk
@@ -169,13 +169,13 @@ func HandleDisks(ctx context.Context, client crdClient.Interface, ed *nsv1alpha1
 				} else {
 					disks[i].Status = nsv1alpha1.MountSuccess
 				}
-				_ = updateDiskStatus(ctx, client, name, disks)
+				_ = patchDisk(ctx, client, name, *ed, disks)
 			}
 		case nsv1alpha1.DiskUmount:
 			if d.Status == nsv1alpha1.MountSuccess {
 				// update disk status
 				disks[i].Status = nsv1alpha1.Pending
-				_ = updateDiskStatus(ctx, client, name, disks)
+				_ = patchDisk(ctx, client, name, *ed, disks)
 				if err := diskclient.UmountDisks(bd, d, chroot); err != nil {
 					klog.Errorf("disk %s umount failed: %s", d.Name, err)
 					disks[i].Status = nsv1alpha1.UmountFailed
@@ -186,7 +186,7 @@ func HandleDisks(ctx context.Context, client crdClient.Interface, ed *nsv1alpha1
 				} else {
 					disks[i].Status = nsv1alpha1.UmountSuccess
 				}
-				_ = updateDiskStatus(ctx, client, name, disks)
+				_ = patchDisk(ctx, client, name, *ed, disks)
 			}
 		default:
 			klog.Errorf("the action %s is not support of disk %s.", d.Action, d.Name)
@@ -194,7 +194,7 @@ func HandleDisks(ctx context.Context, client crdClient.Interface, ed *nsv1alpha1
 				Err:  fmt.Sprintf("the action %s is not support of disk %s.", d.Action, d.Name),
 				Time: metav1.Now(),
 			})
-			_ = updateDiskStatus(ctx, client, name, disks)
+			_ = patchDisk(ctx, client, name, *ed, disks)
 		}
 	}
 
@@ -217,22 +217,12 @@ func updateDiskStatus(ctx context.Context, client crdClient.Interface, name stri
 }
 
 func patchDisk(ctx context.Context, client crdClient.Interface, name string, old nsv1alpha1.ExtendDevice, disks []nsv1alpha1.Disk) error {
-	//oldData, err := json.Marshal(old)
-	//if err != nil {
-	//	return err
-	//}
-
 	old.Spec.Disks = disks
 	old.Status.LastUpdateTime = metav1.Now()
 	newData, err := json.Marshal(old)
 	if err != nil {
 		return err
 	}
-
-	//patchBytes, err := strategicpatch.CreateTwoWayMergePatch(oldData, newData, nsv1alpha1.ExtendDevice{})
-	//if err != nil {
-	//	return err
-	//}
 
 	_, err = client.DeviceV1alpha1().ExtendDevices().Patch(ctx, name, types.MergePatchType, newData)
 	if err != nil {
