@@ -73,15 +73,17 @@ func HandleExtendDevice(ctx context.Context, client crdClient.Interface, name st
 		if !errors.IsNotFound(err) {
 			return err
 		}
-		klog.V(4).Infof("Create empty extend device %s to cluster.", name)
+		klog.Infof("Create empty extend device resource %s to cluster.", name)
 		emptyED := GetEmptyExtendDevice(name)
 		emptyED.Name = name
 		if _, err := CreateExtendDevice(ctx, client, emptyED); err != nil {
 			return err
 		}
 	} else {
+		klog.V(5).Infof("The extend device resource %s is existing in cluster.", name)
 		err := HandleDisks(ctx, client, ed, chroot)
 		if err != nil {
+			klog.Errorf(fmt.Sprintf("error to handler disks: %s", err))
 			return err
 		}
 	}

@@ -57,6 +57,8 @@ func (p *SinkProvider) DiskHandler(ctx context.Context) error {
 		default:
 			if err = kube.HandleExtendDevice(ctx, p.client, p.nodeName, p.chroot); err != nil {
 				klog.Warning("Failed to handler the disks.")
+			} else {
+				return nil
 			}
 			retry++
 			if retry != p.maxRetry {

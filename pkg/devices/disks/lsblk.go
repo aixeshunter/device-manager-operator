@@ -113,7 +113,7 @@ func ListBlockDevices(chroot string) (map[string]BlockDevice, error) {
 				continue
 			}
 		default:
-			klog.Infof("ignoring %q type device: %+v", deviceType, dev)
+			klog.V(5).Infof("ignoring %q type device: %+v", deviceType, dev)
 			continue
 		}
 

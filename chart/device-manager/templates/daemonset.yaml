@@ -39,7 +39,7 @@ spec:
                 fieldRef:
                   fieldPath: spec.nodeName
           resources:
-  {{ toYaml .Values.resources | indent 12 }}
+{{ toYaml .Values.resources | indent 12 }}
           securityContext:
             privileged: {{ .Values.securityContext.privileged }}
           volumeMounts:

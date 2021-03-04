@@ -11,22 +11,17 @@ metadata:
   name: device-manager-role
 rules:
   - apiGroups:
-      - nodesystem.k8s.io
+      - device.k8s.io
     resources:
-      - extendsysteminfos
+      - extenddevices
     verbs:
-      - get
-      - create
-      - update
-      - delete
+      - "*"
   - apiGroups:
       - device.k8s.io
     resources:
       - extenddevices/status
     verbs:
-      - get
-      - create
-      - update
+      - "*"
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
