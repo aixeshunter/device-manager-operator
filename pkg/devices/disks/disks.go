@@ -119,17 +119,21 @@ func cleanData(chroot string, disk nsv1alpha1.Disk) error {
 
 func makeFileSystem(disk nsv1alpha1.Disk) error {
 	var cmd string
+	var flag string
 	switch disk.FileSystemType {
 	case "xfs":
-		cmd = "mkfs.xfs -f"
+		cmd = "mkfs.xfs"
+		flag = "-f"
 	case "ext4":
-		cmd = "mkfs.ext4 -F"
+		cmd = "mkfs.ext4"
+		flag = "-F"
 	default:
 		klog.Warningf("The filesystem type %s is not support, default to xfs.", disk.FileSystemType)
-		cmd = "mkfs.xfs -f"
+		cmd = "mkfs.xfs"
+		flag = "-f"
 	}
 
-	c := exec.Command(cmd, DevicePrefix+disk.Name)
+	c := exec.Command(cmd, flag, DevicePrefix+disk.Name)
 	if err := c.Run(); err != nil {
 		klog.Errorf("could not exec command %s to disk %s", cmd, disk.Name)
 		return err
