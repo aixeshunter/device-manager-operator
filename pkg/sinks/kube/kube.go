@@ -2,12 +2,15 @@ package kube
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"hikvision.com/cloud/device-manager/pkg/constants"
 	nsv1alpha1 "hikvision.com/cloud/device-manager/pkg/crd/apis/device.k8s.io/v1alpha1"
 	crdClient "hikvision.com/cloud/device-manager/pkg/crd/client/clientset/versioned"
 	diskclient "hikvision.com/cloud/device-manager/pkg/devices/disks"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/types"
+	"k8s.io/apimachinery/pkg/util/strategicpatch"
 	"k8s.io/klog"
 	"time"
 
@@ -81,7 +84,7 @@ func HandleExtendDevice(ctx context.Context, client crdClient.Interface, name st
 		}
 	} else {
 		klog.V(5).Infof("The extend device resource %s is existing in cluster.", name)
-		err := HandleDisks(ctx, client, ed, chroot)
+		err := HandleDisks(ctx, client, ed, chroot, name)
 		if err != nil {
 			klog.Errorf(fmt.Sprintf("error to handler disks: %s", err))
 			return err
@@ -91,7 +94,7 @@ func HandleExtendDevice(ctx context.Context, client crdClient.Interface, name st
 	return nil
 }
 
-func HandleDisks(ctx context.Context, client crdClient.Interface, ed *nsv1alpha1.ExtendDevice, chroot string) error {
+func HandleDisks(ctx context.Context, client crdClient.Interface, ed *nsv1alpha1.ExtendDevice, chroot, name string) error {
 	lsblk, err := diskclient.ListBlockDevices(chroot)
 	if err != nil {
 		return err
@@ -110,7 +113,7 @@ func HandleDisks(ctx context.Context, client crdClient.Interface, ed *nsv1alpha1
 		ed.Status.Message = fmt.Sprintf("%s: There are some available disks should be handled.", t.Format(constants.TimeLayout))
 	}
 
-	err = updateDiskStatus(ctx, client, ed, disks)
+	err = patchDisk(ctx, client, name, *ed, disks)
 	if err != nil {
 		klog.Error("Update disk status failed when starting.")
 		return err
@@ -126,7 +129,7 @@ func HandleDisks(ctx context.Context, client crdClient.Interface, ed *nsv1alpha1
 				Err:  fmt.Sprintf("disk %s not found in lsblk command, is it exist?", d.Name),
 				Time: metav1.Now(),
 			})
-			_ = updateDiskStatus(ctx, client, ed, disks)
+			_ = updateDiskStatus(ctx, client, name, disks)
 			continue
 		}
 
@@ -135,7 +138,7 @@ func HandleDisks(ctx context.Context, client crdClient.Interface, ed *nsv1alpha1
 			// clean disk data
 			if d.Status == nsv1alpha1.MountSuccess && d.Clean == true {
 				disks[i].CleanStatus = nsv1alpha1.Cleaning
-				_ = updateDiskStatus(ctx, client, ed, disks)
+				_ = updateDiskStatus(ctx, client, name, disks)
 				if err := diskclient.CleanDisk(lsblk, d, chroot); err != nil {
 					klog.Errorf("disk %s clean failed: %s", d.Name, err)
 					disks[i].Error = append(disks[i].Error, nsv1alpha1.Error{
@@ -147,7 +150,7 @@ func HandleDisks(ctx context.Context, client crdClient.Interface, ed *nsv1alpha1
 					disks[i].CleanStatus = nsv1alpha1.CleanFailed
 				}
 				disks[i].Clean = false
-				_ = updateDiskStatus(ctx, client, ed, disks)
+				_ = updateDiskStatus(ctx, client, name, disks)
 			}
 
 			// mount disk
@@ -159,16 +162,22 @@ func HandleDisks(ctx context.Context, client crdClient.Interface, ed *nsv1alpha1
 						Err:  fmt.Sprintf("disk umount failed: %s", err),
 						Time: metav1.Now(),
 					})
+					// umount mount disk
+					lb, err := diskclient.ListBlockDevices(chroot)
+					if err == nil {
+					_:
+						diskclient.UmountDisks(lb[d.Name], d, chroot)
+					}
 				} else {
 					disks[i].Status = nsv1alpha1.MountSuccess
 				}
-				_ = updateDiskStatus(ctx, client, ed, disks)
+				_ = updateDiskStatus(ctx, client, name, disks)
 			}
 		case nsv1alpha1.DiskUmount:
 			if d.Status == nsv1alpha1.MountSuccess {
 				// update disk status
 				disks[i].Status = nsv1alpha1.Pending
-				_ = updateDiskStatus(ctx, client, ed, disks)
+				_ = updateDiskStatus(ctx, client, name, disks)
 				if err := diskclient.UmountDisks(bd, d, chroot); err != nil {
 					klog.Errorf("disk %s umount failed: %s", d.Name, err)
 					disks[i].Status = nsv1alpha1.UmountFailed
@@ -179,7 +188,7 @@ func HandleDisks(ctx context.Context, client crdClient.Interface, ed *nsv1alpha1
 				} else {
 					disks[i].Status = nsv1alpha1.UmountSuccess
 				}
-				_ = updateDiskStatus(ctx, client, ed, disks)
+				_ = updateDiskStatus(ctx, client, name, disks)
 			}
 		default:
 			klog.Errorf("the action %s is not support of disk %s.", d.Action, d.Name)
@@ -187,21 +196,51 @@ func HandleDisks(ctx context.Context, client crdClient.Interface, ed *nsv1alpha1
 				Err:  fmt.Sprintf("the action %s is not support of disk %s.", d.Action, d.Name),
 				Time: metav1.Now(),
 			})
-			_ = updateDiskStatus(ctx, client, ed, disks)
+			_ = updateDiskStatus(ctx, client, name, disks)
 		}
 	}
 
 	return nil
 }
 
-func updateDiskStatus(ctx context.Context, client crdClient.Interface, ed *nsv1alpha1.ExtendDevice, disks []nsv1alpha1.Disk) error {
+func updateDiskStatus(ctx context.Context, client crdClient.Interface, name string, disks []nsv1alpha1.Disk) error {
+	ed, err := GetExtendDevice(ctx, client, name)
+	if err != nil {
+		return err
+	}
 	ed.Spec.Disks = disks
 	ed.Status.LastUpdateTime = metav1.Now()
-	_, err := UpdateExtendDevice(ctx, client, ed)
+	_, err = UpdateExtendDevice(ctx, client, ed)
 	if err != nil {
 		klog.Errorf("update disk %v status with k8s client failed: %s.", disks, err)
 		return err
 	}
+	return nil
+}
+
+func patchDisk(ctx context.Context, client crdClient.Interface, name string, old nsv1alpha1.ExtendDevice, disks []nsv1alpha1.Disk) error {
+	oldData, err := json.Marshal(old)
+	if err != nil {
+		return err
+	}
+
+	old.Spec.Disks = disks
+	old.Status.LastUpdateTime = metav1.Now()
+	newData, err := json.Marshal(old)
+	if err != nil {
+		return err
+	}
+
+	patchBytes, err := strategicpatch.CreateTwoWayMergePatch(oldData, newData, nsv1alpha1.ExtendDevice{})
+	if err != nil {
+		return err
+	}
+
+	_, err = client.DeviceV1alpha1().ExtendDevices().Patch(ctx, name, types.StrategicMergePatchType, patchBytes)
+	if err != nil {
+		return err
+	}
+
 	return nil
 }
 
