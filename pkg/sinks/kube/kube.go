@@ -10,7 +10,6 @@ import (
 	diskclient "hikvision.com/cloud/device-manager/pkg/devices/disks"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
-	"k8s.io/apimachinery/pkg/util/strategicpatch"
 	"k8s.io/klog"
 	"time"
 
@@ -111,12 +110,11 @@ func HandleDisks(ctx context.Context, client crdClient.Interface, ed *nsv1alpha1
 	if change == true {
 		t := time.Now()
 		ed.Status.Message = fmt.Sprintf("%s: There are some available disks should be handled.", t.Format(constants.TimeLayout))
-	}
-
-	err = patchDisk(ctx, client, name, *ed, disks)
-	if err != nil {
-		klog.Error("Update disk status failed when starting.")
-		return err
+		err = patchDisk(ctx, client, name, *ed, disks)
+		if err != nil {
+			klog.Error("Update disk status failed when starting.")
+			return err
+		}
 	}
 
 	for i, d := range disks {
@@ -219,10 +217,10 @@ func updateDiskStatus(ctx context.Context, client crdClient.Interface, name stri
 }
 
 func patchDisk(ctx context.Context, client crdClient.Interface, name string, old nsv1alpha1.ExtendDevice, disks []nsv1alpha1.Disk) error {
-	oldData, err := json.Marshal(old)
-	if err != nil {
-		return err
-	}
+	//oldData, err := json.Marshal(old)
+	//if err != nil {
+	//	return err
+	//}
 
 	old.Spec.Disks = disks
 	old.Status.LastUpdateTime = metav1.Now()
@@ -231,12 +229,12 @@ func patchDisk(ctx context.Context, client crdClient.Interface, name string, old
 		return err
 	}
 
-	patchBytes, err := strategicpatch.CreateTwoWayMergePatch(oldData, newData, nsv1alpha1.ExtendDevice{})
-	if err != nil {
-		return err
-	}
+	//patchBytes, err := strategicpatch.CreateTwoWayMergePatch(oldData, newData, nsv1alpha1.ExtendDevice{})
+	//if err != nil {
+	//	return err
+	//}
 
-	_, err = client.DeviceV1alpha1().ExtendDevices().Patch(ctx, name, types.StrategicMergePatchType, patchBytes)
+	_, err = client.DeviceV1alpha1().ExtendDevices().Patch(ctx, name, types.MergePatchType, newData)
 	if err != nil {
 		return err
 	}
