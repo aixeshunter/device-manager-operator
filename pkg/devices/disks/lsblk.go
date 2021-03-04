@@ -132,7 +132,7 @@ func ListBlockDevices(chroot string) (map[string]BlockDevice, error) {
 			dev.InUse = true
 		}
 
-		if dev.MountPoint != "" {
+		if dev.MountPoint == "" {
 			dev.InUse = false
 		}
 
