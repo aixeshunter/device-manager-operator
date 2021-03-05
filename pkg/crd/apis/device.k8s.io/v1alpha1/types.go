@@ -86,7 +86,7 @@ type Disk struct {
 	Status string `json:"status"`
 
 	// The clean status of block storage device
-	CleanStatus string `json:"cleanStatus,omitempty"`
+	CleanStatus string `json:"cleanStatus"`
 
 	Dump bool `json:"dump"`
 
