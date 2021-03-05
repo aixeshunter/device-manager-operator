@@ -59,13 +59,13 @@ type Disk struct {
 	// Clean disk data
 	// if true: clean data of disk
 	// if false: pass
-	Clean bool `json:"clean,omitempty"`
+	Clean bool `json:"clean"`
 
 	// filesystem of block device, like xfs, ext4, ext3.
-	FileSystemType string `json:"fsType,omitempty"`
+	FileSystemType string `json:"fsType"`
 
 	// MountPoint is the path at which the block devices is mounted.
-	MountPoint string `json:"mountPoint,omitempty"`
+	MountPoint string `json:"mountPoint"`
 
 	// UUID is a unique identifier for the filesystem on the block device.
 	//
@@ -74,24 +74,24 @@ type Disk struct {
 	//
 	// The UUID format is not necessarily uniform; for example, LVM UUIDs
 	// differ in format to the standard v4 UUIDs.
-	UUID string `json:"uuid,omitempty"`
+	UUID string `json:"uuid"`
 
 	// Whether to format the block device before mount.
-	Formatting bool `json:"formatting,omitempty"`
+	Formatting bool `json:"formatting"`
 
 	// The action to disk, about mount and umount.
-	Action string `json:"action,omitempty"`
+	Action string `json:"action"`
 
 	// The status of block storage device
-	Status string `json:"status,omitempty"`
+	Status string `json:"status"`
 
 	// The clean status of block storage device
 	CleanStatus string `json:"cleanStatus,omitempty"`
 
-	Dump bool `json:"dump,omitempty"`
+	Dump bool `json:"dump"`
 
 	// The error message of action
-	Error []Error `json:"errors,omitempty"`
+	Error []Error `json:"errors"`
 }
 
 type Error struct {
