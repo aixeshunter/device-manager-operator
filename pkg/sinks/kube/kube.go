@@ -110,7 +110,7 @@ func HandleDisks(ctx context.Context, client crdClient.Interface, ed *nsv1alpha1
 	if change == true {
 		t := time.Now()
 		ed.Status.Message = fmt.Sprintf("%s: There are some available disks should be handled.", t.Format(constants.TimeLayout))
-		err = patchDisk(ctx, client, name, *ed, disks)
+		err = updateDiskStatus(ctx, client, name, disks)
 		if err != nil {
 			klog.Error("Update disk status failed when starting.")
 			return err
@@ -126,7 +126,7 @@ func HandleDisks(ctx context.Context, client crdClient.Interface, ed *nsv1alpha1
 				Err:  fmt.Sprintf("disk %s not found in lsblk command, is it exist?", d.Name),
 				Time: metav1.Now(),
 			})
-			_ = patchDisk(ctx, client, name, *ed, disks)
+			_ = updateDiskStatus(ctx, client, name, disks)
 			continue
 		}
 
@@ -136,7 +136,7 @@ func HandleDisks(ctx context.Context, client crdClient.Interface, ed *nsv1alpha1
 			if d.Status == nsv1alpha1.MountSuccess && d.Clean == true {
 				klog.Infof("disk %s clean starting...", d.Name)
 				disks[i].CleanStatus = nsv1alpha1.Cleaning
-				_ = patchDisk(ctx, client, name, *ed, disks)
+				_ = updateDiskStatus(ctx, client, name, disks)
 				if err := diskclient.CleanDisk(lsblk, d, chroot); err != nil {
 					klog.Errorf("disk %s clean failed: %s", d.Name, err)
 					disks[i].Error = append(disks[i].Error, nsv1alpha1.Error{
@@ -148,7 +148,7 @@ func HandleDisks(ctx context.Context, client crdClient.Interface, ed *nsv1alpha1
 					disks[i].CleanStatus = nsv1alpha1.CleanFailed
 				}
 				disks[i].Clean = false
-				_ = patchDisk(ctx, client, name, *ed, disks)
+				_ = updateDiskStatus(ctx, client, name, disks)
 			}
 
 			// mount disk
@@ -170,14 +170,14 @@ func HandleDisks(ctx context.Context, client crdClient.Interface, ed *nsv1alpha1
 				} else {
 					disks[i].Status = nsv1alpha1.MountSuccess
 				}
-				_ = patchDisk(ctx, client, name, *ed, disks)
+				_ = updateDiskStatus(ctx, client, name, disks)
 			}
 		case nsv1alpha1.DiskUmount:
 			if d.Status == nsv1alpha1.MountSuccess {
 				klog.Infof("disk %s umount starting...", d.Name)
 				// update disk status
 				disks[i].Status = nsv1alpha1.Pending
-				_ = patchDisk(ctx, client, name, *ed, disks)
+				_ = updateDiskStatus(ctx, client, name, disks)
 				if err := diskclient.UmountDisks(bd, d, chroot); err != nil {
 					klog.Errorf("disk %s umount failed: %s", d.Name, err)
 					disks[i].Status = nsv1alpha1.UmountFailed
@@ -188,7 +188,7 @@ func HandleDisks(ctx context.Context, client crdClient.Interface, ed *nsv1alpha1
 				} else {
 					disks[i].Status = nsv1alpha1.UmountSuccess
 				}
-				_ = patchDisk(ctx, client, name, *ed, disks)
+				_ = updateDiskStatus(ctx, client, name, disks)
 			}
 		default:
 			klog.Errorf("the action %s is not support of disk %s.", d.Action, d.Name)
@@ -196,7 +196,7 @@ func HandleDisks(ctx context.Context, client crdClient.Interface, ed *nsv1alpha1
 				Err:  fmt.Sprintf("the action %s is not support of disk %s.", d.Action, d.Name),
 				Time: metav1.Now(),
 			})
-			_ = patchDisk(ctx, client, name, *ed, disks)
+			_ = updateDiskStatus(ctx, client, name, disks)
 		}
 	}
 
