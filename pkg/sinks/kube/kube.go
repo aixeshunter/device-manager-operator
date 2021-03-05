@@ -143,9 +143,10 @@ func HandleDisks(ctx context.Context, client crdClient.Interface, ed *nsv1alpha1
 						Err:  fmt.Sprintf("disk clean failed: %s.", err),
 						Time: metav1.Now(),
 					})
-					disks[i].CleanStatus = nsv1alpha1.CleanSuccess
-				} else {
 					disks[i].CleanStatus = nsv1alpha1.CleanFailed
+				} else {
+					klog.Infof("disk %s clean succeed.", d.Name)
+					disks[i].CleanStatus = nsv1alpha1.CleanSuccess
 				}
 				disks[i].Clean = false
 				_ = updateDiskStatus(ctx, client, name, disks)
@@ -164,10 +165,10 @@ func HandleDisks(ctx context.Context, client crdClient.Interface, ed *nsv1alpha1
 					// umount mount disk
 					lb, err := diskclient.ListBlockDevices(chroot)
 					if err == nil {
-					_:
-						diskclient.UmountDisks(lb[d.Name], d, chroot)
+						_ = diskclient.UmountDisks(lb[d.Name], d, chroot)
 					}
 				} else {
+					klog.Infof("disk %s mount succeed.", d.Name)
 					disks[i].Status = nsv1alpha1.MountSuccess
 				}
 				_ = updateDiskStatus(ctx, client, name, disks)
@@ -187,6 +188,7 @@ func HandleDisks(ctx context.Context, client crdClient.Interface, ed *nsv1alpha1
 					})
 				} else {
 					disks[i].Status = nsv1alpha1.UmountSuccess
+					klog.Infof("disk %s umount succeed.", d.Name)
 				}
 				_ = updateDiskStatus(ctx, client, name, disks)
 			}
