@@ -223,11 +223,13 @@ func patchDisk(ctx context.Context, client crdClient.Interface, name string, old
 	old.Status.LastUpdateTime = metav1.Now()
 	newData, err := json.Marshal(old)
 	if err != nil {
+		klog.Errorf("json.Marshal extenddevice resource %s failed: %s", old.Spec.Node, err)
 		return err
 	}
 
 	_, err = client.DeviceV1alpha1().ExtendDevices().Patch(ctx, name, types.MergePatchType, newData)
 	if err != nil {
+		klog.Errorf("patch extenddevice resource %s failed: %s", old.Spec.Node, err)
 		return err
 	}
 

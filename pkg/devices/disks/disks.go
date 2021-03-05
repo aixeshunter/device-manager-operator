@@ -169,14 +169,14 @@ func deleteFromFStab(chroot string, disk nsv1alpha1.Disk, blk BlockDevice) error
 	} else if blk.UUID != "" {
 		match = blk.UUID
 	}
-	output, flag, err = constants.ReadFile(chroot+FStabPath, match, "")
+	output, flag, err = constants.ReadFile(chroot+FStabPath, match, "", true)
 	if err != nil {
 		return err
 	}
 
 	if flag != true {
 		match = DevicePrefix + disk.Name
-		output, flag, err = constants.ReadFile(chroot+FStabPath, match, "")
+		output, flag, err = constants.ReadFile(chroot+FStabPath, match, "", true)
 		if err != nil {
 			return err
 		}

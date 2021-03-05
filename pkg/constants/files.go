@@ -38,7 +38,7 @@ func WriteToFile(filePath string, outPut []byte) error {
 	return nil
 }
 
-func ReadFile(filePath string, match, target string) ([]byte, bool, error) {
+func ReadFile(filePath string, match, target string, deleteEmpty bool) ([]byte, bool, error) {
 	f, err := os.OpenFile(filePath, os.O_RDONLY, 0644)
 	if err != nil {
 		return nil, false, err
@@ -50,6 +50,10 @@ func ReadFile(filePath string, match, target string) ([]byte, bool, error) {
 	output := make([]byte, 0)
 	for {
 		line, _, err := reader.ReadLine()
+		if deleteEmpty == true && len(line) == 0 {
+			continue
+		}
+
 		if err != nil {
 			if err == io.EOF {
 				return output, needHandle, nil
@@ -60,7 +64,9 @@ func ReadFile(filePath string, match, target string) ([]byte, bool, error) {
 			// reg := regexp.MustCompile(ORIGIN)
 			// newByte := reg.ReplaceAllString(string(line), TARGET)
 			output = append(output, []byte(target)...)
-			output = append(output, []byte("\n")...)
+			if target != "" {
+				output = append(output, []byte("\n")...)
+			}
 			if !needHandle {
 				needHandle = true
 			}

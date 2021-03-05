@@ -59,7 +59,7 @@ spec:
       clean: false
       fsType: xfs
       mountPoint: /opt/mnt2
-      uuid: e9d83931-56ac-402e-a066-b79f1074de49
+      uuid: b6895b0c-7408-45f5-bba9-ca1baf7aa44a
       formatting: true
       action: mount
       status: Available
@@ -68,7 +68,7 @@ spec:
       clean: false
       fsType: ext4
       mountPoint: /opt/mnt1
-      uuid: 56ac-402e-a066-b79f1074de49
+      uuid: bef7fc78-c463-4a8a-9aed-f0a40d725060
       formatting: true
       action: mount
       status: Available
