@@ -165,7 +165,10 @@ func HandleDisks(ctx context.Context, client crdClient.Interface, ed *nsv1alpha1
 					// umount mount disk
 					lb, err := diskclient.ListBlockDevices(chroot)
 					if err == nil {
-						_ = diskclient.UmountDisks(lb[d.Name], d, chroot)
+						err = diskclient.UmountDisks(lb[d.Name], d, chroot)
+						if err != nil {
+							klog.Warningf("umount disk %s when action mount failed, but it failed: %s", d.Name, err)
+						}
 					}
 				} else {
 					klog.Infof("disk %s mount succeed.", d.Name)
