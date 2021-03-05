@@ -22,7 +22,7 @@ func CreateDirectoryIfNotExist(path string) error {
 	return nil
 }
 
-func WriteToFile(filePath string, outPut []byte) error {
+func WriteToFile(filePath string, output []byte) error {
 	f, err := os.OpenFile(filePath, os.O_WRONLY|os.O_TRUNC, 0600)
 	if err != nil {
 		return err
@@ -30,7 +30,7 @@ func WriteToFile(filePath string, outPut []byte) error {
 	defer f.Close()
 
 	writer := bufio.NewWriter(f)
-	_, err = writer.Write(outPut)
+	_, err = writer.Write(output)
 	if err != nil {
 		return err
 	}
@@ -50,16 +50,16 @@ func ReadFile(filePath string, match, target string, deleteEmpty bool) ([]byte, 
 	output := make([]byte, 0)
 	for {
 		line, _, err := reader.ReadLine()
-		if deleteEmpty == true && len(line) == 0 {
-			continue
-		}
-
 		if err != nil {
 			if err == io.EOF {
 				return output, needHandle, nil
 			}
 			return nil, needHandle, err
 		}
+		if deleteEmpty == true && len(line) == 0 {
+			continue
+		}
+
 		if ok, _ := regexp.Match(match, line); ok {
 			// reg := regexp.MustCompile(ORIGIN)
 			// newByte := reg.ReplaceAllString(string(line), TARGET)

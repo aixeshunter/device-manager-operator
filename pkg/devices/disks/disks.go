@@ -19,7 +19,6 @@ func MountDisks(d BlockDevice, disk nsv1alpha1.Disk, chroot string) error {
 			klog.Errorf("mount: the disk %s was mounted on %s, but expect to %s.", disk.Name, d.MountPoint, disk.MountPoint)
 		} else {
 			klog.V(5).Infof("mount: the disk %s was mounted on %s already.", disk.Name, disk.MountPoint)
-
 		}
 	} else {
 		if disk.Formatting == true {

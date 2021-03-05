@@ -84,14 +84,14 @@ func NewDeviceManagerCommand() *cobra.Command {
 func run(ctx context.Context, period time.Duration, provider *sinks.SinkProvider) error {
 
 	wait.UntilWithContext(ctx, func(ctx context.Context) {
-		klog.Infoln("The work queue starting...")
+		klog.V(3).Infoln("The work queue starting...")
 		// handler the disks
 		if err := provider.DiskHandler(ctx); err != nil {
 			klog.Errorf("Failed to handler the block devices, reason: %v", err)
 			return
 		}
 
-		klog.Infoln("The work queue done. Waiting the next queue.")
+		klog.V(3).Infoln("The work queue done. Waiting the next queue.")
 	}, period)
 
 	return nil
@@ -111,6 +111,8 @@ func runCommand(opts *options, chroot string) error {
 		klog.Errorf("Failed to initialize sink provider, reason: %v", err)
 		return err
 	}
+
+	klog.Infoln("The devices manager is starting...")
 
 	return run(ctx, opts.Period, sp)
 }
