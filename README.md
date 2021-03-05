@@ -13,6 +13,49 @@
 1. 一个节点一份extend
 
 
+## 磁盘任务(action)和状态(status)
+
+### 挂载任务及状态
+在磁盘为卸载成功`umountSucceed`或等待中`Available`状态时可以执行挂载操作
+
+* action: mount
+  
+* status:
+1. mountSucceed：`挂载成功`
+2. mountFailed：`挂载失败`
+
+### 卸载任务及状态
+在磁盘非卸载成功`umountSucceed`状态时可以执行卸载操作
+
+* action: umount
+
+* status:
+1. umountSucceed：`卸载成功`
+2. umountFailed：`卸载失败`
+
+### 其他状态
+
+* Pending: 任务（挂载、卸载）执行中，可以显示`执行中`
+
+* Available: 磁盘可用，可以显示`等待中`
+
+## 磁盘清理
+
+在磁盘为挂载成功状态`MountSuccess`时可以执行清理操作。
+
+### 执行清理
+
+* clean: true
+  
+* cleanStatus:
+1. cleanSucceed：`清理成功`
+2. cleanFailed：`清理失败`
+3. cleaning：`清理中`
+
+### 不执行清理
+
+* clean: false
+
 ## 开发记录
 
 ### 容器内磁盘挂载
