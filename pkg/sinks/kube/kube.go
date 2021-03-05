@@ -177,22 +177,28 @@ func HandleDisks(ctx context.Context, client crdClient.Interface, ed *nsv1alpha1
 				_ = updateDiskStatus(ctx, client, name, disks)
 			}
 		case nsv1alpha1.DiskUmount:
-			klog.Infof("disk %s umount starting...", d.Name)
-			// update disk status
-			disks[i].Status = nsv1alpha1.Pending
-			_ = updateDiskStatus(ctx, client, name, disks)
-			if err := diskclient.UmountDisks(bd, d, chroot); err != nil {
-				klog.Errorf("disk %s umount failed: %s", d.Name, err)
-				disks[i].Status = nsv1alpha1.UmountFailed
-				disks[i].Error = append(disks[i].Error, nsv1alpha1.Error{
-					Err:  fmt.Sprintf("%s", err),
-					Time: metav1.Now(),
-				})
-			} else {
-				disks[i].Status = nsv1alpha1.UmountSuccess
-				klog.Infof("disk %s umount succeed.", d.Name)
+			if d.Status != nsv1alpha1.UmountSuccess {
+				if d.Status == nsv1alpha1.UmountFailed {
+					continue
+				}
+
+				klog.Infof("disk %s umount starting...", d.Name)
+				// update disk status
+				disks[i].Status = nsv1alpha1.Pending
+				_ = updateDiskStatus(ctx, client, name, disks)
+				if err := diskclient.UmountDisks(bd, d, chroot); err != nil {
+					klog.Errorf("disk %s umount failed: %s", d.Name, err)
+					disks[i].Status = nsv1alpha1.UmountFailed
+					disks[i].Error = append(disks[i].Error, nsv1alpha1.Error{
+						Err:  fmt.Sprintf("%s", err),
+						Time: metav1.Now(),
+					})
+				} else {
+					disks[i].Status = nsv1alpha1.UmountSuccess
+					klog.Infof("disk %s umount succeed.", d.Name)
+				}
+				_ = updateDiskStatus(ctx, client, name, disks)
 			}
-			_ = updateDiskStatus(ctx, client, name, disks)
 		default:
 			klog.Errorf("the action %s is not support of disk %s.", d.Action, d.Name)
 			disks[i].Error = append(disks[i].Error, nsv1alpha1.Error{
