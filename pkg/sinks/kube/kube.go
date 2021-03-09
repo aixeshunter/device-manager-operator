@@ -180,9 +180,9 @@ func HandleDisks(ctx context.Context, client crdClient.Interface, ed *nsv1alpha1
 			}
 		case nsv1alpha1.DiskUmount:
 			if d.Status != nsv1alpha1.UmountSuccess {
-				if d.Status == nsv1alpha1.UmountFailed {
-					continue
-				}
+				//if d.Status == nsv1alpha1.UmountFailed {
+				//	continue
+				//}
 
 				klog.Infof("disk %s umount starting...", d.Name)
 				// update disk status
