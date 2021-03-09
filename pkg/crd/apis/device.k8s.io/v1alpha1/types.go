@@ -19,6 +19,8 @@ const (
 	MountFailed   = "mountFailed"
 	UmountSuccess = "umountSucceed"
 	UmountFailed  = "umountFailed"
+	Mounting      = "mounting"
+	Umounting     = "umounting"
 	// waiting
 	MountAvail = "Available"
 	// executing

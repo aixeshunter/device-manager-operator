@@ -24,6 +24,8 @@
 * status:
 1. mountSucceed：`挂载成功`
 2. mountFailed：`挂载失败`
+3. mounting: `挂载中`
+4. Pending: 任务（挂载、卸载）等待中，可以显示`等待中`
 
 ### 卸载任务及状态
 在磁盘非卸载成功`umountSucceed`状态时可以执行卸载操作
@@ -33,12 +35,8 @@
 * status:
 1. umountSucceed：`卸载成功`
 2. umountFailed：`卸载失败`
-
-### 其他状态
-
-* Pending: 任务（挂载、卸载）执行中，可以显示`执行中`
-
-* Available: 磁盘可用，可以显示`等待中`
+3. umounting： `卸载中`
+4. Pending: 任务（挂载、卸载）等待中，可以显示`等待中`
 
 ## 磁盘清理
 
@@ -52,6 +50,7 @@
 1. cleanSucceed：`清理成功`
 2. cleanFailed：`清理失败`
 3. cleaning：`清理中`
+4. Pending: `等待中`
 
 ### 不执行清理
 
