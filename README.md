@@ -42,9 +42,9 @@
 
 在磁盘为挂载成功状态`MountSuccess`时可以执行清理操作。
 
-### 执行清理
+## 执行清理
 
-* clean: true
+* action: clean
   
 * cleanStatus:
 1. cleanSucceed：`清理成功`
@@ -52,9 +52,9 @@
 3. cleaning：`清理中`
 4. Pending: `等待中`
 
-### 不执行清理
+## 其他状态
 
-* clean: false
+1. Available： `可用`
 
 ## 开发记录
 
