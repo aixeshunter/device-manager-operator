@@ -151,6 +151,12 @@ helm delete device-manager  -n kube-system
 http://10.19.141.137:11443/v1/clusters/devices?name=master1&deviceType=disk
 ```
 
+* Method
+
+```
+GET
+```
+
 * Response
 ```json
 {
@@ -295,6 +301,14 @@ http://10.19.141.137:11443/v1/clusters/devices?name=master1&deviceType=disk
 http://10.19.141.137:11443/v1/clusters/devices/disks
 ```
 
+* Method
+
+```
+POST
+```
+
+* Body
+
 ```json
 {
   "action": "mount",
@@ -381,6 +395,14 @@ http://10.19.141.137:11443/v1/clusters/devices/disks
 http://10.19.141.137:11443/v1/clusters/devices/disks
 ```
 
+* Method
+
+```
+POST
+```
+
+* Body
+
 ```json
 {
   "action": "umount",
@@ -461,6 +483,14 @@ http://10.19.141.137:11443/v1/clusters/devices/disks
 ```
 http://10.19.141.137:11443/v1/clusters/devices/disks
 ```
+
+* Method
+
+```
+POST
+```
+
+* Body
 
 ```json
 {
