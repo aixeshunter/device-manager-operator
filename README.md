@@ -185,7 +185,8 @@ GET
                 "action": "",
                 "status": "Available",
                 "cleanStatus": "",
-                "errors": []
+                "errors": [],
+                "existInED": false
               },
               {
                 "name": "sda2",
@@ -198,7 +199,8 @@ GET
                 "action": "mount",
                 "status": "mountSucceed",
                 "cleanStatus": "",
-                "errors": []
+                "errors": [],
+                "existInED": false
               },
               {
                 "name": "sda3",
@@ -211,7 +213,8 @@ GET
                 "action": "mount",
                 "status": "mountSucceed",
                 "cleanStatus": "",
-                "errors": []
+                "errors": [],
+                "existInED": false
               }
             ],
             "mountPoint": "",
@@ -223,7 +226,8 @@ GET
             "action": "mount",
             "status": "mountSucceed",
             "cleanStatus": "",
-            "errors": []
+            "errors": [],
+            "existInED": false
           },
           {
             "name": "sdb",
@@ -236,14 +240,15 @@ GET
             "partitions": [],
             "mountPoint": "/opt/mnt1",
             "inuse": true,
-            "uuid": "6bda88bd-0ccf-45b2-ad34-369f62755443",
+            "uuid": "43561191-8ab4-4fbb-92b8-5ca92381f8ae",
             "hardwareID": "",
             "healthStatus": "pass",
             "healthError": null,
             "action": "mount",
             "status": "mountSucceed",
             "cleanStatus": "cleanSucceed",
-            "errors": []
+            "errors": [],
+            "existInED": true
           },
           {
             "name": "sdc",
@@ -256,14 +261,15 @@ GET
             "partitions": [],
             "mountPoint": "/opt/mnt2",
             "inuse": true,
-            "uuid": "f42eec6a-f2dd-43c6-bb92-c43a33ac9b1c",
+            "uuid": "f5a5ca3d-0519-4b0b-8aab-160f7e00db26",
             "hardwareID": "",
             "healthStatus": "pass",
             "healthError": null,
             "action": "mount",
             "status": "mountSucceed",
             "cleanStatus": "cleanSucceed",
-            "errors": []
+            "errors": [],
+            "existInED": true
           },
           {
             "name": "sdd",
@@ -283,7 +289,8 @@ GET
             "action": "",
             "status": "Available",
             "cleanStatus": "",
-            "errors": []
+            "errors": [],
+            "existInED": false
           }
         ]
       }
