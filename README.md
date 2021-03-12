@@ -157,6 +157,13 @@ http://10.19.141.137:11443/v1/clusters/devices?name=master1&deviceType=disk
 GET
 ```
 
+* Parameters
+
+```
+name: 磁盘所在节点名称，必填项
+deviceType: 设备类型，当前只支持`disk`，必填项
+```
+
 * Response
 ```json
 {
