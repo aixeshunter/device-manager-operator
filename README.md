@@ -2,6 +2,12 @@
 
 [![Build Status](http://10.33.46.222:8000/api/badges/docker/device-manager/status.svg)](http://10.33.46.222:8000/docker/device-manager)
 
+* [介绍](#Usage)
+* [磁盘任务(action)和状态(status)](#磁盘任务(action)和状态(status))
+* [开发记录](#开发记录)
+* [安装](#Installation)
+* [kocenter磁盘接口](#kocenter磁盘接口)
+
 ## Usage
 
 * 负责监听CRD并对宿主机设备进行操作，目前主要包括：
@@ -38,11 +44,11 @@
 3. umounting： `卸载中`
 4. Pending: 任务（挂载、卸载）等待中，可以显示`等待中`
 
-## 磁盘清理
+### 磁盘清理
 
 在磁盘为挂载成功状态`MountSuccess`时可以执行清理操作。
 
-## 执行清理
+### 执行清理
 
 * action: clean
   
@@ -52,7 +58,7 @@
 3. cleaning：`清理中`
 4. Pending: `等待中`
 
-## 其他状态
+### 其他状态
 
 1. Available： `可用`
 
@@ -135,7 +141,7 @@ helm install device-manager device-manager/ -n kube-system
 helm delete device-manager  -n kube-system
 ```
 
-## kocenter磁盘设备接口
+## kocenter磁盘接口
 
 ### 获取disk设备信息
 
@@ -170,7 +176,10 @@ http://10.19.141.137:11443/v1/clusters/devices?name=master1&deviceType=disk
                 "type": "",
                 "uuid": "",
                 "inuse": false,
-                "status": "Available"
+                "action": "",
+                "status": "Available",
+                "cleanStatus": "",
+                "errors": []
               },
               {
                 "name": "sda2",
@@ -181,7 +190,9 @@ http://10.19.141.137:11443/v1/clusters/devices?name=master1&deviceType=disk
                 "uuid": "4efc90f6-bbef-40f1-8818-8086341d66a3",
                 "inuse": true,
                 "action": "mount",
-                "status": "mountSucceed"
+                "status": "mountSucceed",
+                "cleanStatus": "",
+                "errors": []
               },
               {
                 "name": "sda3",
@@ -192,7 +203,9 @@ http://10.19.141.137:11443/v1/clusters/devices?name=master1&deviceType=disk
                 "uuid": "a52c7B-KJr8-87Pm-d0Ox-5Qkh-5cSO-TTTJXs",
                 "inuse": true,
                 "action": "mount",
-                "status": "mountSucceed"
+                "status": "mountSucceed",
+                "cleanStatus": "",
+                "errors": []
               }
             ],
             "mountPoint": "",
@@ -201,43 +214,50 @@ http://10.19.141.137:11443/v1/clusters/devices?name=master1&deviceType=disk
             "hardwareID": "",
             "healthStatus": "pass",
             "healthError": null,
-            "status": "Available"
+            "action": "mount",
+            "status": "mountSucceed",
+            "cleanStatus": "",
+            "errors": []
           },
           {
             "name": "sdb",
             "size": 480103981056,
             "sizeUnit": "447.1GB",
             "isSSD": true,
-            "type": "ext4",
+            "type": "xfs",
             "serial": "BTDV741501GV480BGN",
             "vendor": "ATA",
             "partitions": [],
-            "mountPoint": "",
-            "inuse": false,
-            "uuid": "1a689a11-919a-44ba-987e-5b144c0f2ec9",
+            "mountPoint": "/opt/mnt1",
+            "inuse": true,
+            "uuid": "6bda88bd-0ccf-45b2-ad34-369f62755443",
             "hardwareID": "",
             "healthStatus": "pass",
             "healthError": null,
             "action": "mount",
-            "status": "Pending"
+            "status": "mountSucceed",
+            "cleanStatus": "cleanSucceed",
+            "errors": []
           },
           {
             "name": "sdc",
             "size": 1800360124416,
             "sizeUnit": "1.6TB",
             "isSSD": false,
-            "type": "xfs",
+            "type": "ext4",
             "serial": "5000cca02c71c364",
             "vendor": "HGST",
             "partitions": [],
-            "mountPoint": "",
-            "inuse": false,
-            "uuid": "974bc81d-ebb6-451f-b51a-96310679b0f8",
+            "mountPoint": "/opt/mnt2",
+            "inuse": true,
+            "uuid": "f42eec6a-f2dd-43c6-bb92-c43a33ac9b1c",
             "hardwareID": "",
             "healthStatus": "pass",
             "healthError": null,
             "action": "mount",
-            "status": "mountSucceed"
+            "status": "mountSucceed",
+            "cleanStatus": "cleanSucceed",
+            "errors": []
           },
           {
             "name": "sdd",
@@ -254,7 +274,10 @@ http://10.19.141.137:11443/v1/clusters/devices?name=master1&deviceType=disk
             "hardwareID": "",
             "healthStatus": "pass",
             "healthError": null,
-            "status": "Available"
+            "action": "",
+            "status": "Available",
+            "cleanStatus": "",
+            "errors": []
           }
         ]
       }
@@ -262,5 +285,248 @@ http://10.19.141.137:11443/v1/clusters/devices?name=master1&deviceType=disk
   },
   "message": "",
   "resultCode": "0"
+}
+```
+
+### 挂载disk
+
+* Request
+```
+http://10.19.141.137:11443/v1/clusters/devices/disks
+```
+
+```json
+{
+  "action": "mount",
+  "devices": [{
+  	"node": "worker2",
+  	"disk": [{
+  		"name": "sdb",
+  		"fsType": "xfs",
+  		"mountPoint": "/opt/mnt1",
+  		"uuid": "bef7fc78-c463-4a8a-9aed-f0a40d725060",
+  		"formatting": true,
+  		"dump": true
+  	},{
+  		"name": "sdc",
+  		"fsType": "ext4",
+  		"mountPoint": "/opt/mnt2",
+  		"uuid": "b6895b0c-7408-45f5-bba9-ca1baf7aa44a",
+  		"formatting": true,
+  		"dump": false
+  	}]}]
+}
+```
+
+* Response
+```json
+{
+    "data": [
+        {
+            "metadata": {
+                "name": "worker2",
+                "selfLink": "/apis/device.k8s.io/v1alpha1/extenddevices/worker2",
+                "uid": "180ab273-a0f5-413a-9a28-d4ad0ba9aadf",
+                "resourceVersion": "66570646",
+                "generation": 2,
+                "creationTimestamp": "2021-03-12T06:25:25Z"
+            },
+            "spec": {
+                "disk": [
+                    {
+                        "name": "sdb",
+                        "clean": false,
+                        "fsType": "xfs",
+                        "mountPoint": "/opt/mnt1",
+                        "uuid": "bef7fc78-c463-4a8a-9aed-f0a40d725060",
+                        "formatting": true,
+                        "action": "mount",
+                        "status": "Available",
+                        "cleanStatus": "",
+                        "dump": true,
+                        "errors": []
+                    },
+                    {
+                        "name": "sdc",
+                        "clean": false,
+                        "fsType": "ext4",
+                        "mountPoint": "/opt/mnt2",
+                        "uuid": "b6895b0c-7408-45f5-bba9-ca1baf7aa44a",
+                        "formatting": true,
+                        "action": "mount",
+                        "status": "Available",
+                        "cleanStatus": "",
+                        "dump": false,
+                        "errors": []
+                    }
+                ],
+                "node": "worker2"
+            },
+            "status": {
+                "lastUpdateTime": "2021-03-12T06:35:03Z",
+                "message": "create"
+            }
+        }
+    ],
+    "message": "",
+    "resultCode": "0"
+}
+```
+
+
+### 卸载disk
+
+* Request
+```
+http://10.19.141.137:11443/v1/clusters/devices/disks
+```
+
+```json
+{
+  "action": "umount",
+  "devices": [{
+  	"node": "worker2",
+  	"disk": [{
+  		"name": "sdb"
+  	},{
+  		"name": "sdc"
+  	}]}]
+}
+```
+
+
+* Response
+
+```json
+{
+    "data": [
+        {
+            "metadata": {
+                "name": "worker2",
+                "selfLink": "/apis/device.k8s.io/v1alpha1/extenddevices/worker2",
+                "uid": "180ab273-a0f5-413a-9a28-d4ad0ba9aadf",
+                "resourceVersion": "66571907",
+                "generation": 8,
+                "creationTimestamp": "2021-03-12T06:25:25Z"
+            },
+            "spec": {
+                "disk": [
+                    {
+                        "name": "sdb",
+                        "clean": false,
+                        "fsType": "xfs",
+                        "mountPoint": "/opt/mnt1",
+                        "uuid": "bef7fc78-c463-4a8a-9aed-f0a40d725060",
+                        "formatting": true,
+                        "action": "umount",
+                        "status": "Pending",
+                        "cleanStatus": "mounting",
+                        "dump": true,
+                        "errors": []
+                    },
+                    {
+                        "name": "sdc",
+                        "clean": false,
+                        "fsType": "ext4",
+                        "mountPoint": "/opt/mnt2",
+                        "uuid": "b6895b0c-7408-45f5-bba9-ca1baf7aa44a",
+                        "formatting": true,
+                        "action": "umount",
+                        "status": "Pending",
+                        "cleanStatus": "mounting",
+                        "dump": false,
+                        "errors": []
+                    }
+                ],
+                "node": "worker2"
+            },
+            "status": {
+                "lastUpdateTime": "2021-03-12T06:37:48Z",
+                "message": "create"
+            }
+        }
+    ],
+    "message": "",
+    "resultCode": "0"
+}
+```
+
+
+### 清理磁盘
+
+只有通过接口进行挂载的磁盘，即磁盘信息保存在CRD ExtendDevices中才可以进行清理，并且磁盘需要为`mountSucceed`状态。
+
+* Request
+
+```
+http://10.19.141.137:11443/v1/clusters/devices/disks
+```
+
+```json
+{
+  "action": "clean",
+  "devices": [{
+  	"node": "worker2",
+  	"disk": [{
+  		"name": "sdb"
+  	},{
+  		"name": "sdc"
+  	}]}]
+}
+```
+
+* Response
+
+```json
+{
+    "data": [
+        {
+            "metadata": {
+                "name": "worker2",
+                "selfLink": "/apis/device.k8s.io/v1alpha1/extenddevices/worker2",
+                "uid": "795e1249-fab4-4fea-b592-7e82aad9da2b",
+                "resourceVersion": "66584617",
+                "generation": 8,
+                "creationTimestamp": "2021-03-12T06:34:39Z"
+            },
+            "spec": {
+                "disk": [
+                    {
+                        "name": "sdb",
+                        "clean": true,
+                        "fsType": "xfs",
+                        "mountPoint": "/opt/mnt1",
+                        "uuid": "bef7fc78-c463-4a8a-9aed-f0a40d725060",
+                        "formatting": true,
+                        "action": "mount",
+                        "status": "mountSucceed",
+                        "cleanStatus": "Pending",
+                        "dump": true,
+                        "errors": null
+                    },
+                    {
+                        "name": "sdc",
+                        "clean": true,
+                        "fsType": "ext4",
+                        "mountPoint": "/opt/mnt2",
+                        "uuid": "b6895b0c-7408-45f5-bba9-ca1baf7aa44a",
+                        "formatting": true,
+                        "action": "mount",
+                        "status": "mountSucceed",
+                        "cleanStatus": "Pending",
+                        "dump": false,
+                        "errors": null
+                    }
+                ],
+                "node": "worker2"
+            },
+            "status": {
+                "lastUpdateTime": "2021-03-12T07:06:11Z",
+                "message": "create"
+            }
+        }
+    ],
+    "message": "",
+    "resultCode": "0"
 }
 ```
