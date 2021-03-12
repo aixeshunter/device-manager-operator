@@ -155,7 +155,7 @@ func HandleDisks(ctx context.Context, client crdClient.Interface, ed *nsv1alpha1
 			// mount disk
 			if d.Status == nsv1alpha1.Pending || d.Status == nsv1alpha1.UmountSuccess {
 				klog.Infof("disk %s mount starting...", d.Name)
-				disks[i].CleanStatus = nsv1alpha1.Mounting
+				disks[i].Status = nsv1alpha1.Mounting
 				_ = updateDiskStatus(ctx, client, name, disks)
 				if err := diskclient.MountDisks(bd, d, chroot); err != nil {
 					klog.Errorf("disk %s mount failed: %s", d.Name, err)
@@ -186,7 +186,7 @@ func HandleDisks(ctx context.Context, client crdClient.Interface, ed *nsv1alpha1
 
 				klog.Infof("disk %s umount starting...", d.Name)
 				// update disk status
-				disks[i].CleanStatus = nsv1alpha1.Umounting
+				disks[i].Status = nsv1alpha1.Umounting
 				_ = updateDiskStatus(ctx, client, name, disks)
 				if err := diskclient.UmountDisks(bd, d, chroot); err != nil {
 					klog.Errorf("disk %s umount failed: %s", d.Name, err)

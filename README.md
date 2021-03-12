@@ -96,7 +96,7 @@ metadata:
   selfLink: /apis/device.k8s.io/v1alpha1/extenddevices/master1
   uid: 8c42ad96-4761-441d-b07a-0ec9987abae2
 spec:
-  node: master1
+  node: worker2
   disk:
   - name: sdc
     clean: false
@@ -133,4 +133,134 @@ helm install device-manager device-manager/ -n kube-system
 
 ```bash
 helm delete device-manager  -n kube-system
+```
+
+## kocenter磁盘设备接口
+
+### 获取disk设备信息
+
+
+* Request
+```
+http://10.19.141.137:11443/v1/clusters/devices?name=master1&deviceType=disk
+```
+
+* Response
+```json
+{
+  "data": {
+    "devices": [
+      {
+        "name": "worker2",
+        "disk": [
+          {
+            "name": "sda",
+            "size": 600127266816,
+            "sizeUnit": "558.9GB",
+            "isSSD": false,
+            "type": "",
+            "serial": "5000039858391315",
+            "vendor": "TOSHIBA",
+            "partitions": [
+              {
+                "name": "sda1",
+                "size": 1048576,
+                "sizeUnit": "1MB",
+                "mountPoint": "",
+                "type": "",
+                "uuid": "",
+                "inuse": false,
+                "status": "Available"
+              },
+              {
+                "name": "sda2",
+                "size": 1073741824,
+                "sizeUnit": "1GB",
+                "mountPoint": "/boot",
+                "type": "ext4",
+                "uuid": "4efc90f6-bbef-40f1-8818-8086341d66a3",
+                "inuse": true,
+                "action": "mount",
+                "status": "mountSucceed"
+              },
+              {
+                "name": "sda3",
+                "size": 599050420224,
+                "sizeUnit": "557.9GB",
+                "mountPoint": "/",
+                "type": "",
+                "uuid": "a52c7B-KJr8-87Pm-d0Ox-5Qkh-5cSO-TTTJXs",
+                "inuse": true,
+                "action": "mount",
+                "status": "mountSucceed"
+              }
+            ],
+            "mountPoint": "",
+            "inuse": true,
+            "uuid": "",
+            "hardwareID": "",
+            "healthStatus": "pass",
+            "healthError": null,
+            "status": "Available"
+          },
+          {
+            "name": "sdb",
+            "size": 480103981056,
+            "sizeUnit": "447.1GB",
+            "isSSD": true,
+            "type": "ext4",
+            "serial": "BTDV741501GV480BGN",
+            "vendor": "ATA",
+            "partitions": [],
+            "mountPoint": "",
+            "inuse": false,
+            "uuid": "1a689a11-919a-44ba-987e-5b144c0f2ec9",
+            "hardwareID": "",
+            "healthStatus": "pass",
+            "healthError": null,
+            "action": "mount",
+            "status": "Pending"
+          },
+          {
+            "name": "sdc",
+            "size": 1800360124416,
+            "sizeUnit": "1.6TB",
+            "isSSD": false,
+            "type": "xfs",
+            "serial": "5000cca02c71c364",
+            "vendor": "HGST",
+            "partitions": [],
+            "mountPoint": "",
+            "inuse": false,
+            "uuid": "974bc81d-ebb6-451f-b51a-96310679b0f8",
+            "hardwareID": "",
+            "healthStatus": "pass",
+            "healthError": null,
+            "action": "mount",
+            "status": "mountSucceed"
+          },
+          {
+            "name": "sdd",
+            "size": 600127266816,
+            "sizeUnit": "558.9GB",
+            "isSSD": false,
+            "type": "ext4",
+            "serial": "5000cca02f419c4c",
+            "vendor": "HGST",
+            "partitions": [],
+            "mountPoint": "",
+            "inuse": false,
+            "uuid": "0b5c6a03-7dd0-4e46-b969-129885d2f79b",
+            "hardwareID": "",
+            "healthStatus": "pass",
+            "healthError": null,
+            "status": "Available"
+          }
+        ]
+      }
+    ]
+  },
+  "message": "",
+  "resultCode": "0"
+}
 ```
